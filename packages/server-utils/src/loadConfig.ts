@@ -17,38 +17,20 @@ const loadConfig = (): IConfig => {
   const vueClientEntry = join(cwd, './node_modules/ssr-plugin-vue/esm/entry/client-entry.js')
   const reactServerEntry = join(cwd, './node_modules/ssr-plugin-react/esm/entry/server-entry.js')
   const reactClientEntry = join(cwd, './node_modules/ssr-plugin-react/esm/entry/client-entry.js')
-  let alias = {
+
+  const alias = Object.assign({
     '@': getFeDir(),
     '~': getCwd(),
     _build: join(getCwd(), './build'),
     ...userConfig.alias
-  }
-  if (framework === 'react') {
-    alias = {
-      ...alias,
-      ...{
-        react: loadModule('react'),
-        'react-router': loadModule('react-router'),
-        'react-router-dom': loadModule('react-router-dom')
-      }
-    }
-  }
-  if (framework === 'vue2') {
-    alias = {
-      ...alias,
-      ...{
-        vue$: 'vue/dist/vue.runtime.esm.js'
-      }
-    }
-  }
-  if (framework === 'vue3') {
-    alias = {
-      ...alias,
-      ...{
-        vue$: 'vue/dist/vue.runtime.esm-bundler.js'
-      }
-    }
-  }
+  }, framework === 'react' ? {
+    react: loadModule('react'),
+    'react-router': loadModule('react-router'),
+    'react-router-dom': loadModule('react-router-dom')
+  } : {
+    vue$: framework === 'vue2' ? 'vue/dist/vue.runtime.esm.js' : 'vue/dist/vue.runtime.esm-bundler.js'
+  })
+
   type ClientLogLevel = 'error'
 
   const publicPath = userConfig.publicPath?.startsWith('http') ? userConfig.publicPath : normalizeStartPath(userConfig.publicPath ?? '/')
