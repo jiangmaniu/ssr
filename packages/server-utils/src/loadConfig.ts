@@ -1,10 +1,11 @@
 import { join } from 'path'
 import { IConfig } from 'ssr-types'
-import { getCwd, getUserConfig, normalizeStartPath, normalizeEndPath, getFeDir } from './cwd'
+import { getCwd, getUserConfig, normalizeStartPath, normalizeEndPath, getFeDir, judgeFramework } from './cwd'
 
 const loadModule = require.resolve
 const loadConfig = (): IConfig => {
   const userConfig = getUserConfig()
+  const framework = judgeFramework()
   const cwd = getCwd()
   const mode = 'ssr'
   const stream = false
@@ -16,15 +17,37 @@ const loadConfig = (): IConfig => {
   const vueClientEntry = join(cwd, './node_modules/ssr-plugin-vue/esm/entry/client-entry.js')
   const reactServerEntry = join(cwd, './node_modules/ssr-plugin-react/esm/entry/server-entry.js')
   const reactClientEntry = join(cwd, './node_modules/ssr-plugin-react/esm/entry/client-entry.js')
-  const alias = {
+  let alias = {
     '@': getFeDir(),
     '~': getCwd(),
     _build: join(getCwd(), './build'),
-    vue$: 'vue/dist/vue.runtime.esm.js',
-    react: loadModule('react'),
-    'react-router': loadModule('react-router'),
-    'react-router-dom': loadModule('react-router-dom'),
     ...userConfig.alias
+  }
+  if (framework === 'react') {
+    alias = {
+      ...alias,
+      ...{
+        react: loadModule('react'),
+        'react-router': loadModule('react-router'),
+        'react-router-dom': loadModule('react-router-dom')
+      }
+    }
+  }
+  if (framework === 'vue2') {
+    alias = {
+      ...alias,
+      ...{
+        vue$: 'vue/dist/vue.runtime.esm.js'
+      }
+    }
+  }
+  if (framework === 'vue3') {
+    alias = {
+      ...alias,
+      ...{
+        vue$: 'vue/dist/vue.runtime.esm-bundler.js'
+      }
+    }
   }
   type ClientLogLevel = 'error'
 
