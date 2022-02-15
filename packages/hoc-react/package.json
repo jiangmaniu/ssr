@@ -6,7 +6,8 @@
   "module": "./esm/index.js",
   "exports": {
     ".": {
-      "node": "./cjs/node.js"
+      "node": "./cjs/node.js",
+      "default": "./cjs/index.js"
     }
   },
   "sideEffects": false,
