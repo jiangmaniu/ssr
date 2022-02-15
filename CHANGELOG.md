@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [6.1.63](https://github.com/zhangyuang/ssr/compare/v6.1.62...v6.1.63) (2022-02-15)
+
+
+### Bug Fixes
+
+* ssr-hoc-react export in node ([e88c0c9](https://github.com/zhangyuang/ssr/commit/e88c0c9dd57529927ce0cb0c87e829dc32a9713d))
+
+
+
+
+
 ## [6.1.62](https://github.com/zhangyuang/ssr/compare/v6.1.61...v6.1.62) (2022-02-15)
 
 
