@@ -1,5 +1,5 @@
 import { promises } from 'fs'
-import { resolve } from 'path'
+import { resolve, normalize } from 'path'
 import type { UserConfig, Plugin } from 'vite'
 import { parse as parseImports } from 'es-module-lexer'
 import MagicString from 'magic-string'
@@ -38,7 +38,6 @@ const chunkNamePlugin = function (): Plugin {
     }
   }
 }
-
 const asyncOptimizeChunkPlugin = (): Plugin => {
   return {
     name: 'asyncOptimizeChunkPlugin',
@@ -74,9 +73,6 @@ const asyncOptimizeChunkPlugin = (): Plugin => {
           originAsyncChunkMap[dyImporterId] = originAsyncChunkMap[dyImporterId].concat(originAsyncChunkMap[id])
         }
       }
-      //  else {
-      //   originAsyncChunkMap[id] = ['entry']
-      // }
     }
   }
 }
@@ -121,18 +117,25 @@ const rollupOutputOptions: OutputOptions = {
     return manualChunksFn(id)
   }
 }
+const vendorList = ['vue', 'vuex', 'vue-router', 'react', 'react-router', 'react-dom', 'react-router-dom', '@vue']
+const re = /node_modules(\\|\/)(.*?)(\1)/g
 const manualChunksFn = (id: string) => {
   if (id.includes('chunkName')) {
     return chunkNameRe.exec(id)![1]
   }
   if (!process.env.LEGACY_VITE) {
-    // if (id.includes('node_modules')) {
-    //   if (!originAsyncChunkMap[id]) {
-    //     originAsyncChunkMap[id] = []
-    //   }
-    //   console.log(originAsyncChunkMap[id])
-    //   originAsyncChunkMap[id].push('vendor')
-    // }
+
+    if (id.includes('node_modules')) {
+      const start = id.lastIndexOf('node_modules')
+      if (vendorList.includes(re.exec(id.slice(start, id.length))?.[2] as string)) {
+        console.log(id)
+        return 'vendor'
+      }
+      if (!originAsyncChunkMap[id]) {
+        originAsyncChunkMap[id] = []
+      }
+      originAsyncChunkMap[id].push('vendor')
+    }
     const arr = Array.from(new Set(originAsyncChunkMap?.[id]))
     if (arr.length === 1) {
       return arr[0]
